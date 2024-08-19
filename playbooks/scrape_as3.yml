@@ -31,7 +31,7 @@
     #   register: as3_declaration 
 
     - debug:
-        msg: "{{ as3_declaration.json }}"
+        msg: "{{ as3_declaration }}"
 
     - name: POST AS3 declaration to F5 VE 1
       uri:
@@ -43,7 +43,7 @@
         method: POST
         timeout: 180
         body_format: json
-        body: "{{ as3_declaration.json  }}"
+        body: "{{ as3_declaration  }}"
         return_content: yes
         status_code: [ 200, 202]
       register: as3id
