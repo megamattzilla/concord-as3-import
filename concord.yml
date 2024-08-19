@@ -3,6 +3,11 @@ configuration:
   dependencies:
   - mvn://com.walmartlabs.concord.plugins.basic:ansible-tasks:1.103.0
 
+triggers:
+- declare:
+    version: 2
+    entryPoint: as3_scrape
+
 flows:
 
   #Name of Flow visible in Concord. This flow is specific for export automation.

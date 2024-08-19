@@ -17,18 +17,18 @@
 #    - name: clone git repo
 #      shell: git clone git@github.com:megamattzilla/concord-as3-import.git
 
-    - name: Scrape AS3 declaration 
-      uri:
-        url: "https://{{ hostvars[inventory_hostname].bigip_mgmt }}:{{ port | default('443')}}/mgmt/shared/appsvcs/declare"
-        user: "{{ provider.user }}"
-        password: "{{ f5adminpassword }}"
-        validate_certs: false
-        force_basic_auth: yes
-        method: GET
-        timeout: 180
-        return_content: yes
-        status_code: 200
-      register: as3_declaration 
+    # - name: Scrape AS3 declaration 
+    #   uri:
+    #     url: "https://{{ hostvars[inventory_hostname].bigip_mgmt }}:{{ port | default('443')}}/mgmt/shared/appsvcs/declare"
+    #     user: "{{ provider.user }}"
+    #     password: "{{ f5adminpassword }}"
+    #     validate_certs: false
+    #     force_basic_auth: yes
+    #     method: GET
+    #     timeout: 180
+    #     return_content: yes
+    #     status_code: 200
+    #   register: as3_declaration 
 
     - debug:
         msg: "{{ as3_declaration.json }}"
