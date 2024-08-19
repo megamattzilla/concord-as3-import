@@ -37,7 +37,7 @@ flows:
         #Passing extra vars to ansible playbook run.
         extraVars:
           #Lookup F5 admin password from Concord secrets vault: https://concord.walmartlabs.com/docs/plugins/crypto.html
-          f5adminpassword: "${crypto.exportAsString('Default', 'f5adminpassword', null)}"
+          f5adminpassword: "${crypto.exportAsString('Default', 'bigipAdminPassword', null)}"
           # #Pass SSH key path to ansible variable
-          # SSH_KEY_PATH: "${myKeys.private}"
+          # SSH_KEY_PATH: "${myKeys.private}" 
 
