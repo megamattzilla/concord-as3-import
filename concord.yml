@@ -36,7 +36,7 @@ flows:
         #Enabling log filtering helps to remove sensitive secrets from the concord process log
         enableLogFiltering: false
         #Custom Docker File to run ansible from. This file uses ansible 2.9.20.
-        dockerImage: "megamattzilla/f5_ansible:1.2"
+        dockerImage: "megamattzilla/f5_ansible:2.0.0"
         #Name of ansible playbook to call. Note: Ansible playbook could call other ansible playbooks. 
         playbook: "playbooks/scrape_as3.yml"
         inventoryFile: "playbooks/inventory/bigip"
