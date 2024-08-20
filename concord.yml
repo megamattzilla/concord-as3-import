@@ -1,7 +1,8 @@
 configuration:
   runtime: "concord-v2"
   dependencies:
-  - mvn://com.walmartlabs.concord.plugins.basic:ansible-tasks:1.103.0
+  - mvn://com.walmartlabs.concord.plugins.basic:ansible-tasks:2.14.0
+
 
 triggers:
 - declare:
@@ -38,7 +39,7 @@ flows:
         dockerImage: "megamattzilla/f5_ansible:1.2"
         #Name of ansible playbook to call. Note: Ansible playbook could call other ansible playbooks. 
         playbook: "playbooks/scrape_as3.yml"
-        inventoryFile: "playbooks/inventory/gold"
+        inventoryFile: "playbooks/inventory/bigip"
         #Verbosity controls ansible logging level. 5 is quite verbose and useful for troubleshooting. 
         verbose: 4
         #Passing extra vars to ansible playbook run.
