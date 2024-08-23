@@ -29,21 +29,21 @@
     - name: Create Class AS3 .JSON file for top-level keys (not tenant declaration)
       ansible.builtin.copy:
         content: "{{ as3_declaration | combine({'declaration': None}) | dict2items | selectattr('key', '!=', 'declaration') | items2dict | to_nice_json }}"
-        dest: "files/class-as3-keys.json"
+        dest: "{{ playbook_dir }}/files/class-as3-keys.json"
       run_once: true
 
     ## Create Class ADC .JSON file for second-level keys (not declaration)  
     - name: Create Class ADC .JSON file for second-level keys (not declaration)
       ansible.builtin.copy:
         content: "{{ as3_declaration.declaration  | dict2items | rejectattr('value', 'search', 'Tenant') | items2dict | to_nice_json }}"
-        dest: "files/class-adc-keys.json"
+        dest: "{{ playbook_dir }}/files/class-adc-keys.json"
       run_once: true
 
     ## Create AS3 .JSON file for tenants  
     - name: Create AS3 .JSON file for tenants 
       ansible.builtin.copy:
         content: "{{ [item]  | items2dict | to_nice_json }}"
-        dest: "files/tenant-{{ item.key }}.json"
+        dest: "{{ playbook_dir }}/files/tenant-{{ item.key }}.json"
       loop: "{{ as3_declaration.declaration | dict2items | selectattr('value', 'search', 'Tenant')  }}"
       loop_control:        
         label: "{{ item.key }}"
