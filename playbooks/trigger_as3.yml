@@ -21,19 +21,22 @@
 #      shell: git clone git@github.com:megamattzilla/concord-as3-import.git
 
     ## Create Class AS3 .JSON file for top-level keys (not tenant declaration)  
-    - ansible.builtin.copy:
+    - name: Create Class AS3 .JSON file for top-level keys (not tenant declaration)
+      ansible.builtin.copy:
         content: "{{ as3_declaration | combine({'declaration': None}) | dict2items | selectattr('key', '!=', 'declaration') | items2dict | to_nice_json }}"
         dest: "files/class-as3-keys.json"
       run_once: true
 
     ## Create Class ADC .JSON file for second-level keys (not declaration)  
-    - ansible.builtin.copy:
+    - name: Create Class ADC .JSON file for second-level keys (not declaration)
+      ansible.builtin.copy:
         content: "{{ as3_declaration.declaration  | dict2items | rejectattr('value', 'search', 'Tenant') | items2dict | to_nice_json }}"
         dest: "files/class-adc-keys.json"
       run_once: true
 
     ## Create AS3 .JSON file for tenants  
-    - ansible.builtin.copy:
+    - name: Create AS3 .JSON file for tenants 
+      ansible.builtin.copy:
         content: "{{ [item]  | items2dict | to_nice_json }}"
         dest: "files/tenant-{{ item.key }}.json"
       loop: "{{ as3_declaration.declaration | dict2items | selectattr('value', 'search', 'Tenant')  }}"
