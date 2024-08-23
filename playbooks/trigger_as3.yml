@@ -19,6 +19,11 @@
 
 #    - name: clone git repo
 #      shell: git clone git@github.com:megamattzilla/concord-as3-import.git
+    - name: Create files directory if it does not exist
+      ansible.builtin.file:
+        path: "{{ playbook_dir }}/files }}"
+        state: directory
+        mode: '0755'
 
     ## Create Class AS3 .JSON file for top-level keys (not tenant declaration)  
     - name: Create Class AS3 .JSON file for top-level keys (not tenant declaration)
