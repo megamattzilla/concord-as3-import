@@ -11,15 +11,38 @@
       server_port: 443
   gather_facts: false
   any_errors_fatal: true
-
+## Overview:
+## Part 1: Save incoming AS3 declaration to github repository
+## Part 2: Post original JSON to F5 VEs 
   tasks:
+    ##Part 1: Save incoming AS3 declaration to github repository
 
 #    - name: clone git repo
 #      shell: git clone git@github.com:megamattzilla/concord-as3-import.git
 
+    ## Create Class AS3 .JSON file for top-level keys (not tenant declaration)  
+    - ansible.builtin.copy:
+        content: "{{ as3_declaration | combine({'declaration': None}) | dict2items | selectattr('key', '!=', 'declaration') | items2dict | to_nice_json }}"
+        dest: "files/class-as3-keys.json"
+      run_once: true
 
-    - debug:
-        msg: "{{ as3_declaration }}"
+    ## Create Class ADC .JSON file for second-level keys (not declaration)  
+    - ansible.builtin.copy:
+        content: "{{ as3_declaration.declaration  | dict2items | rejectattr('value', 'search', 'Tenant') | items2dict | to_nice_json }}"
+        dest: "files/class-adc-keys.json"
+      run_once: true
+
+    ## Create AS3 .JSON file for tenants  
+    - ansible.builtin.copy:
+        content: "{{ [item]  | items2dict | to_nice_json }}"
+        dest: "files/tenant-{{ item.key }}.json"
+      loop: "{{ as3_declaration.declaration | dict2items | selectattr('value', 'search', 'Tenant')  }}"
+      loop_control:        
+        label: "{{ item.key }}"
+      run_once: true
+
+    ## Part 2: Post original JSON to F5 VEs
+    ## Note: this can be modified later to POST the reconstructed JSON from github if needed. See update_as3.yml playbook for that code.  
 
     - name: POST AS3 declaration to F5 VE
       uri:

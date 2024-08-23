@@ -7,14 +7,14 @@ configuration:
 triggers:
 - declare:
     version: 2
-    entryPoint: as3_scrape
+    entryPoint: trigger_as3
     conditions:
       class: "AS3"
 
 flows:
 
   #Name of Flow visible in Concord. This flow is specific for export automation.
-  as3_scrape:
+  trigger_as3:
     #Form reference
     # - log: "exportType= ${ExportSelection.exportType}"
     #Export key from secrets vault to a file. Syntax is: ('Organization', 'SSH key name in secrets vault', 'required store password' )
@@ -38,7 +38,7 @@ flows:
         #Custom Docker File to run ansible from. This file uses ansible 2.9.20.
         dockerImage: "megamattzilla/f5_ansible:2.0.0"
         #Name of ansible playbook to call. Note: Ansible playbook could call other ansible playbooks. 
-        playbook: "playbooks/scrape_as3.yml"
+        playbook: "playbooks/trigger_as3.yml"
         inventoryFile: "playbooks/inventory/bigip"
         #Verbosity controls ansible logging level. 5 is quite verbose and useful for troubleshooting. 
         verbose: 4
