@@ -21,7 +21,7 @@
 #      shell: git clone git@github.com:megamattzilla/concord-as3-import.git
     - name: Debug List Files
       ansible.builtin.shell:
-        cmd: "ls -la"
+        cmd: "ls -laR ../"
       register: shell 
 
     - name: Debug List Files
