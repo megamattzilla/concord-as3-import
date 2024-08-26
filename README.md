@@ -2,6 +2,22 @@
 
 ![alt text](2024-08-20_10-06-55.png)
 
+
+### Example calling Concord Proccess with AS3 payload
+
+![alt text](2024-08-26_16-43-49.png)
+Subtitute your values for:
+```
+org: "Default"
+project: "Ansible"
+repo: "concord-as3-import"
+request: @file.json
+entrypoint: "trigger_as3"
+```
+
+In order to pass the AS3 declaration to ansible via the Concord Proccess using this flow, add the `argument` and `event` keys to your AS3 JSON file:
+![alt text](2024-08-26_16-46-52.png) 
+
 ### Example calling Concord Trigger with AS3 payload
 
 `POST http://concord:8001/api/v1/events/declare`
