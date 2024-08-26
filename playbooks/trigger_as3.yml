@@ -19,6 +19,15 @@
 
 #    - name: clone git repo
 #      shell: git clone git@github.com:megamattzilla/concord-as3-import.git
+    - name: Debug List Files
+      ansible.builtin.shell:
+        cmd: "ls -la"
+      register: shell 
+
+    - name: Debug List Files
+      debug:
+        msg: "{{ shell.stdout_lines }}"           
+
     - name: Create files directory if it does not exist
       ansible.builtin.file:
         path: "{{ playbook_dir }}/files"
