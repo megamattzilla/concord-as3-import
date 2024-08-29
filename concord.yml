@@ -46,7 +46,7 @@ flows:
         extraVars:
           #Lookup F5 admin password from Concord secrets vault: https://concord.walmartlabs.com/docs/plugins/crypto.html
           f5adminpassword: "${crypto.exportAsString('Default', 'bigipAdminPassword', null)}"
-          #as3_declaration: "${event}"
+          as3_declaration: "${event}"
           # #Pass SSH key path to ansible variable
           # SSH_KEY_PATH: "${myKeys.private}" 
 
