@@ -1,0 +1,69 @@
+{
+    "class": "AS3",
+    "action": "deploy",
+    "persist": true,
+    "declaration": {
+        "class": "ADC",
+        "schemaVersion": "3.2.0",
+        "updateMode": "selective",
+{% for tenant in tenants %}        
+        "{{ tenant.tenant }}": {
+        "class": "Tenant",
+        "A1": {
+            "class": "Application",
+{% for virtual in tenant.virtuals %} 
+            "{{ virtual.virtual }}-ecv": {
+                "class": "Monitor",
+                "interval": 5,
+                "monitorType": "{{ virtual.monitorType }}",
+                "timeout": 4
+            },
+            "{{ virtual.virtual }}-pool": {
+                "class": "Pool",
+                "members": [
+                    {
+                        "servicePort": {{ virtual.servicePort }},
+                        "serverAddresses": [
+{% for poolMember in virtual.pool_members %}
+                    "{{ poolMember }}"{{ "," if not loop.last else "" }}
+{% endfor %}
+                        ],
+                        "shareNodes": true
+                    }
+                ],
+                "monitors": [
+                    {
+                        "use": "{{ virtual.virtual }}-ecv"
+                    }
+                ]
+            },
+            "{{ virtual.virtual }}": {
+                "class": "Service_TCP",
+                "pool": "{{ virtual.virtual }}-pool",
+                "profileTCP": {
+                    "bigip": "/Common/f5-tcp-progressive"
+                },
+                "profileUDP": {
+                    "bigip": ""
+                },
+                "remark": "LAYER4 listener for tcp 8443 tcp 8001",
+                "snat": {
+                    "use": "snatpool-{{ virtual.virtualAddresses }}"
+                },
+                "virtualAddresses": [
+                    "{{ virtual.virtualAddresses }}"
+                ],
+                "virtualPort": {{ virtual.virtualPort }}
+            },
+            "snatpool-{{ virtual.virtualAddresses }}": {
+                "class": "SNAT_Pool",
+                "snatAddresses": [
+                    "{{ virtual.virtualAddresses }}"
+                ]
+            }
+        {{ "}," if not loop.last else "}" }}
+{% endfor %}
+    {{ "}," if not loop.last else "}" }}
+{% endfor %}
+    }
+

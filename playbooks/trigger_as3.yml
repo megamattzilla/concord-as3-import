@@ -44,14 +44,42 @@
       run_once: true
 
     ## Create .JSON file for tenants  
-    - name: Create YAML file for tenants 
+    - name: Create .JSON file for tenants 
       ansible.builtin.copy:
-        content: "{{ item | to_yaml }}"
-        dest: "{{ playbook_dir }}/files/{{ item.environment }}/tenant-{{ item.tenant }}.yaml"
+        content: "{{ item | to_nice_json }}"
+        dest: "{{ playbook_dir }}/files/{{ item.environment }}/tenant-{{ item.tenant }}.json"
       loop: "{{ as3_inputs }}"
       loop_control:        
         label: "{{ item.tenant }}"
       run_once: true
+
+    ## Find n-number tenant files
+    - name: Find Tenant .JSON files
+      find:
+        paths: "files/"
+        patterns: 'tenant*'
+        recurse: yes
+      register: findOutput    
+      run_once: true
+
+    ## Set empty JSON document
+    - set_fact: 
+        tenants_list: []
+      run_once: true
+    
+    - name: Add contents of each JSON file to the list
+      set_fact:
+        tenants_list: "{{ tenants_list + [lookup('file', item.path) | from_json] }}"
+      loop: "{{ findOutput.files }}"
+   
+    - name: Create the final combined dictionary
+      set_fact:
+        tenants: "{{ tenants_list }}"    
+
+    - name: Build AS3 declaration
+      template:
+        src: "{{ playbook_dir }}/templates/as3.j2"
+        dest: "{{ playbook_dir }}/files/example2-AS3.json"
 
 
     ## Part 2: Post original JSON to F5 VEs
