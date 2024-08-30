@@ -81,7 +81,9 @@
         src: "{{ playbook_dir }}/templates/as3.j2"
         dest: "{{ playbook_dir }}/files/example2-AS3.json"
 
-
+    - name: Print AS3 Declaration
+      debug: 
+        msg: "{{ lookup('file', 'files/example2-AS3.json') }}"
     ## Part 2: Post original JSON to F5 VEs
     ## Note: this can be modified later to POST the reconstructed JSON from github if needed. See update_as3.yml playbook for that code.  
 
