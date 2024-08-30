@@ -1,0 +1,68 @@
+{
+   "arguments": {
+       "event": [
+           {
+               "environment": "azure-wus2-f5demo-dev-A",
+               "versionTag": "8.0.0",
+               "tenant": "example1",
+               "virtuals": [
+                   {
+                       "virtual": "example1",
+                       "virtualAddresses": "10.0.1.10",
+                       "virtualPort": 80,
+                       "type": "Service_TCP",
+                       "profileTCP": "f5-tcp-progressive",
+                       "pool_members": [
+                           "10.0.1.100",
+                           "10.0.1.101"
+                       ],
+                       "servicePort": 80,
+                       "monitorType": "https",
+                       "snat": [
+                           "10.0.1.10"
+                       ]
+                   },
+                   {
+                       "virtual": "example3",
+                       "virtualAddresses": "10.0.3.10",
+                       "virtualPort": 80,
+                       "type": "Service_TCP",
+                       "profileTCP": "f5-tcp-progressive",
+                       "pool_members": [
+                           "10.0.3.100",
+                           "10.0.3.101"
+                       ],
+                       "servicePort": 80,
+                       "monitorType": "https",
+                       "snat": [
+                           "10.0.3.10"
+                       ]
+                   }
+               ]
+           },
+           {
+               "environment": "azure-wus2-f5demo-dev-A",
+               "versionTag": "8.0.0",
+               "tenant": "example2",
+               "virtuals": [
+                   {
+                       "virtual": "example2",
+                       "virtualAddresses": "10.0.2.10",
+                       "virtualPort": 80,
+                       "type": "Service_TCP",
+                       "profileTCP": "f5-tcp-progressive",
+                       "pool_members": [
+                           "10.0.2.100",
+                           "10.0.2.101"
+                       ],
+                       "servicePort": 80,
+                       "monitorType": "tcp",
+                       "snat": [
+                           "10.0.2.10"
+                       ]
+                   }
+               ]
+           }
+       ]
+   }
+}
