@@ -1,0 +1,19 @@
+#base local directory for ansible to clone rep files into
+GIT_REPO_BASE_PATH: "{{ playbook_dir }}/files/git"
+
+##install_ltm_config.yml vars##
+GIT_REPO:    
+  - name: "concord-as3-import" 
+    url: "git@github.com:megamattzilla/concord-as3-import.git"
+    #Path to SSH key created by concord flow
+    key: "{{ lookup('file','/workspace/{{ SSH_KEY_PATH }}') }}"
+    #specific directory within base path to place this repo
+    git_repo_path: "{{ GIT_REPO_BASE_PATH }}/concord-as3-import"
+    #version tag or branch to clone. you can also clone main
+    version: "main"
+    #Optional: Username to use for git push operations
+    git_username: "megamattzilla"
+    #Optional: Email address to use for git push operations
+    git_email: "email@example.com"
+    #Optional: Commit message for git push operations
+    git_msg: "update AS3 files"

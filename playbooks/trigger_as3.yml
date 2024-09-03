@@ -12,17 +12,35 @@
   gather_facts: false
   any_errors_fatal: true
 ## Overview:
-## Part 1: Save incoming JSON items to github repository
+## Part 1: Save incoming JSON items to github repository as candidate version
 ## Part 2: Post AS3 JSON to F5 VEs
+## Part 3: on AS3 sucess, promote candidate to current version
   tasks:
-    ##Part 1: Save incoming AS3 declaration to github repository
 
-#    - name: clone git repo
-#      shell: git clone git@github.com:megamattzilla/concord-as3-import.git
-         
-    - name: Create base files directory if it does not exist
+  ##Part 1: Save incoming AS3 declaration to github repository
+  tasks:
+    - name: Gather date and time facts only
+      setup:
+        gather_subset:
+          - "date_time"
+
+    - name: Create base files directory (outside repo) if it does not exist
       ansible.builtin.file:
         path: "{{ playbook_dir }}/files"
+        state: directory
+        mode: '0755'
+      run_once: true
+
+    - name: Pull Git Repo main branch
+      run_once: true
+      include_role:
+        name: ansible-git
+        tasks_from: pull      
+      loop: "{{ GIT_REPO }}"
+
+    - name: Create files directory (inside repo) if it does not exist
+      ansible.builtin.file:
+        path: "{{ GIT_REPO[0].git_repo_path }}/files"
         state: directory
         mode: '0755'
       run_once: true
@@ -35,7 +53,7 @@
 
     - name: Create per-tenant file directory if it does not exist
       ansible.builtin.file:
-        path: "{{ playbook_dir }}/files/{{ item.environment }}"
+        path: "{{ GIT_REPO[0].git_repo_path }}/files/{{ item.environment }}"
         state: directory
         mode: '0755'
       loop: "{{ as3_inputs }}"
@@ -47,7 +65,7 @@
     - name: Create .JSON file for tenants 
       ansible.builtin.copy:
         content: "{{ item | to_nice_json }}"
-        dest: "{{ playbook_dir }}/files/{{ item.environment }}/tenant-{{ item.tenant }}.json"
+        dest: "{{ GIT_REPO[0].git_repo_path }}/files/{{ item.environment }}/tenant-{{ item.tenant }}.json"
       loop: "{{ as3_inputs }}"
       loop_control:        
         label: "{{ item.tenant }}"
@@ -56,7 +74,7 @@
     ## Find n-number tenant files
     - name: Find Tenant .JSON files
       find:
-        paths: "files/"
+        paths: "{{ GIT_REPO[0].git_repo_path }}/files/"
         patterns: 'tenant*'
         recurse: yes
       register: findOutput    
@@ -79,11 +97,26 @@
     - name: Build AS3 declaration
       template:
         src: "{{ playbook_dir }}/templates/as3.j2"
-        dest: "{{ playbook_dir }}/files/example2-AS3.json"
+        dest: "{{ GIT_REPO[0].git_repo_path }}/files/example-AS3.json"
 
+    ## Declare candidate version of todays date and time
+    ## TODO: add dynamic candidate version?
+    - set_fact:
+        candidate_version: "{{ ansible_date_time.iso8601 | replace(':','-') }}"
+
+    - name: git push candidate configuration
+      vars:
+        git_remove_local: false
+      include_role:
+        name: ansible-git
+        tasks_from: push
+      loop: "{{ GIT_REPO }}"
+    
+    ## Part 2: Post original JSON to F5 VEs
     - name: Print AS3 Declaration
       debug: 
-        msg: "{{ lookup('file', 'files/example2-AS3.json') }}"
+        msg: "{{ lookup('file', GIT_REPO[0].git_repo_path+'/files/example-AS3.json') }}"
+
     ## Part 2: Post original JSON to F5 VEs
     ## Note: this can be modified later to POST the reconstructed JSON from github if needed. See update_as3.yml playbook for that code.  
 
@@ -117,3 +150,12 @@
     #   retries: 60 # retry X times  
     #   delay: 2 # pause for X sec b/w each call
     #   when:  as3id.status == 202
+
+## Part 3: on AS3 sucess, promote candidate to current version
+    - name: promote candidate configuration to current version
+      shell: git push origin main
+      args:
+        chdir: "{{ GIT_REPO[0].git_repo_path  }}"
+      environment:
+        GIT_SSH: "{{ playbook_dir }}/.ssh/ssh"
+      #when: git_commit is succeeded

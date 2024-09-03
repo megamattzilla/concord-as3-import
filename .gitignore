@@ -1,4 +1,5 @@
 # TBD
-playbooks/concord-as3-import
+concord-as3-import
 *.backup
 *scratch*
+playbooks/*.ssh/*
