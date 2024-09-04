@@ -1,5 +1,5 @@
 ---
-- name: Proccess AS3 from incoming trigger
+- name: Part 1. Proccess AS3 from JSON Items
   hosts: localhost
   connection: local
   gather_facts: false
@@ -110,8 +110,9 @@
       debug: 
         msg: "{{ lookup('file', GIT_REPO[0].git_repo_path+'/files/example-AS3.json') }}"
 
-    ## Part 2: Post original JSON to F5 VEs
-- hosts: azure-wus2-f5demo-dev-A
+    ## Part 2. POST AS3 changes to F5 VEs
+- name: Part 2. POST AS3 changes to F5 VEs
+  hosts: azure-wus2-f5demo-dev-A
   connection: local
   vars:
     provider:
@@ -156,7 +157,8 @@
       when:  as3id.status == 202
 
 ## Part 3: on AS3 sucess, promote candidate to current version
-- hosts: localhost
+- name: Part 3. Promote candidate configuration to current version
+  hosts: localhost
   gather_facts: false
   tasks: 
     - name: promote candidate configuration to current version
