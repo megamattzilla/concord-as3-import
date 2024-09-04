@@ -7,7 +7,7 @@
             "monitorType": "https",
             "pool_members": [
                 "10.0.1.100",
-                "10.0.1.103"
+                "10.0.1.102"
             ],
             "profileTCP": "f5-tcp-progressive",
             "servicePort": 80,
