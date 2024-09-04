@@ -60,10 +60,10 @@
                 "snatAddresses": [
                     "{{ virtual.virtualAddresses }}"
                 ]
-            }
-        {{ "}," if not loop.last else "}" }}
+            {{ "}," if not loop.last else "}" }}
 {% endfor %}
-    {{ "}," if not loop.last else "}" }}
+    {{ "}}," if not loop.last else "}}" }}
 {% endfor %}
-    }
+}
+}
 

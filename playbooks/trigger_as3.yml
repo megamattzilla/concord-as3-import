@@ -2,13 +2,6 @@
 - name: Proccess AS3 from incoming trigger
   hosts: localhost
   connection: local
-  vars:
-    provider:
-      server: "{{ hostvars[inventory_hostname].bigip_mgmt }}"
-      user: admin
-      password: "{{ f5adminpassword }}"
-      validate_certs: false
-      server_port: 443
   gather_facts: false
   any_errors_fatal: true
 ## Overview:
@@ -118,44 +111,59 @@
         msg: "{{ lookup('file', GIT_REPO[0].git_repo_path+'/files/example-AS3.json') }}"
 
     ## Part 2: Post original JSON to F5 VEs
-    ## Note: this can be modified later to POST the reconstructed JSON from github if needed. See update_as3.yml playbook for that code.  
+- hosts: azure-wus2-f5demo-dev-A
+  connection: local
+  vars:
+    provider:
+      server: "{{ hostvars[inventory_hostname].bigip_mgmt }}"
+      user: admin
+      password: "{{ f5adminpassword }}"
+      validate_certs: false
+      server_port: 443
+  gather_facts: false
+  tasks:   
 
-    # - name: POST AS3 declaration to F5 VE
-    #   uri:
-    #     url: "https://{{ hostvars[inventory_hostname].bigip_mgmt }}:{{ port | default('443')}}/mgmt/shared/appsvcs/declare"
-    #     user: "{{ provider.user }}"
-    #     password: "{{ f5adminpassword }}"
-    #     validate_certs: false
-    #     force_basic_auth: yes
-    #     method: POST
-    #     timeout: 180
-    #     body_format: json
-    #     body: "{{ as3_inputs  }}"
-    #     return_content: yes
-    #     status_code: [ 200, 202]
-    #   register: as3id
+    - name: POST AS3 declaration to F5 VE
+      uri:
+        url: "https://{{ hostvars[inventory_hostname].bigip_mgmt }}:{{ port | default('443')}}/mgmt/shared/appsvcs/declare"
+        user: "{{ provider.user }}"
+        password: "{{ f5adminpassword }}"
+        validate_certs: false
+        force_basic_auth: yes
+        method: POST
+        timeout: 180
+        body_format: json
+        body: "{{ lookup('file', GIT_REPO[0].git_repo_path+'/files/example-AS3.json') }}"
+        return_content: yes
+        status_code: [ 200, 202]
+      register: as3id
+      failed_when: "'failed' in as3id.json.results[0]"
 
-    # - name: Get async task status (skipped if AS3 task completed)
-    #   uri:
-    #     url: "https://{{ hostvars[inventory_hostname].bigip_mgmt }}:{{ port | default('443')}}/mgmt/shared/appsvcs/task/{{ as3id.json.id }}"
-    #     user: "{{ provider.user }}"
-    #     password: "{{ f5adminpassword }}"
-    #     validate_certs: false
-    #     force_basic_auth: yes
-    #     method: GET
-    #     return_content: yes
-    #     status_code: 200
-    #   register: patchtaskstatus
-    #   until: patchtaskstatus.json.results[0].message == 'success'
-    #   retries: 60 # retry X times  
-    #   delay: 2 # pause for X sec b/w each call
-    #   when:  as3id.status == 202
+    - name: Get async task status (skipped if AS3 task completed)
+      uri:
+        url: "https://{{ hostvars[inventory_hostname].bigip_mgmt }}:{{ port | default('443')}}/mgmt/shared/appsvcs/task/{{ as3id.json.id }}"
+        user: "{{ provider.user }}"
+        password: "{{ f5adminpassword }}"
+        validate_certs: false
+        force_basic_auth: yes
+        method: GET
+        return_content: yes
+        status_code: 200
+      register: patchtaskstatus
+      until: patchtaskstatus.json.results[0].message == 'success'
+      retries: 60 # retry X times  
+      delay: 2 # pause for X sec b/w each call
+      when:  as3id.status == 202
 
 ## Part 3: on AS3 sucess, promote candidate to current version
+- hosts: localhost
+  gather_facts: false
+  tasks: 
     - name: promote candidate configuration to current version
       shell: git push origin main
       args:
         chdir: "{{ GIT_REPO[0].git_repo_path  }}"
       environment:
         GIT_SSH: "{{ playbook_dir }}/.ssh/ssh"
+      
       #when: git_commit is succeeded

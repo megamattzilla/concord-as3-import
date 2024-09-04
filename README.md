@@ -2,6 +2,16 @@
 
 ![alt text](2024-08-30_16-45-43.png)
 
+### Project Goals
+|  | Done | 
+| :------ | :------ | 
+| 1. Receive JSON items from a POST request | X |  
+| 2. Save JSON items to per-tenant files into a github repository | X | 
+| 3. Create new tag in github for a new candidate configuration version | X | 
+| 4. Identify what tenants had configuration changed | | 
+| 5. Run a jinja2 template to generate the AS3 schema for the tenants that changed | X | 
+| 6. Push the AS3 JSON schema to n-number F5 VE | X |
+| 7. Test multiple POST request in parallel | |  
 
 
 ### Example calling Concord Proccess with JSON items (file upload)
