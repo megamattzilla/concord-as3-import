@@ -1,0 +1,39 @@
+{
+    "environment": "azure-wus2-f5demo-dev-A",
+    "tenant": "example4",
+    "versionTag": "8.0.4",
+    "virtuals": [
+        {
+            "monitorType": "https",
+            "pool_members": [
+                "10.0.1.100",
+                "10.0.1.102"
+            ],
+            "profileTCP": "f5-tcp-progressive",
+            "servicePort": 80,
+            "snat": [
+                "10.0.1.10"
+            ],
+            "type": "Service_TCP",
+            "virtual": "example1",
+            "virtualAddresses": "10.0.1.10",
+            "virtualPort": 80
+        },
+        {
+            "monitorType": "https",
+            "pool_members": [
+                "10.0.3.100",
+                "10.0.3.101"
+            ],
+            "profileTCP": "f5-tcp-progressive",
+            "servicePort": 80,
+            "snat": [
+                "10.0.3.10"
+            ],
+            "type": "Service_TCP",
+            "virtual": "example3",
+            "virtualAddresses": "10.0.3.10",
+            "virtualPort": 80
+        }
+    ]
+}
