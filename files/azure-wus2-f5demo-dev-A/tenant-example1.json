@@ -1,13 +1,13 @@
 {
     "environment": "azure-wus2-f5demo-dev-A",
     "tenant": "example1",
-    "versionTag": "8.0.4",
+    "versionTag": "8.0.0",
     "virtuals": [
         {
             "monitorType": "https",
             "pool_members": [
                 "10.0.1.100",
-                "10.0.1.102"
+                "10.0.1.101"
             ],
             "profileTCP": "f5-tcp-progressive",
             "servicePort": 80,
