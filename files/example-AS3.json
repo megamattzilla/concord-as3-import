@@ -80,7 +80,7 @@
                         "servicePort": 80,
                         "serverAddresses": [
                     "10.0.1.100",
-                    "10.0.1.102"
+                    "10.0.1.101"
                         ],
                         "shareNodes": true
                     }
