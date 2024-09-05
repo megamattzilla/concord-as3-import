@@ -210,7 +210,7 @@
       run_once: true
 
     - name: pull any remote changes to main branch for other tenants
-      shell: git pull origin main
+      shell: git pull origin main --rebase
       args:
         chdir: "{{ GIT_REPO[0].git_repo_path  }}"
       environment:
