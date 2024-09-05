@@ -1,7 +1,7 @@
 {
     "environment": "azure-wus2-f5demo-dev-A",
     "tenant": "example1",
-    "versionTag": "8.0.6",
+    "versionTag": "8.0.1",
     "virtuals": [
         {
             "monitorType": "https",
