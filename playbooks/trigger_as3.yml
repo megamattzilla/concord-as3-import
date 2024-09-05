@@ -120,12 +120,7 @@
     - name: Build AS3 declaration
       template:
         src: "{{ playbook_dir }}/templates/as3.j2"
-        dest: "{{ GIT_REPO[0].git_repo_path }}/files/example-AS3.json"
-
-    ## Part 2: Post original JSON to F5 VEs
-    # - name: Print AS3 Declaration
-    #   debug: 
-    #     msg: "{{ lookup('file', GIT_REPO[0].git_repo_path+'/files/example-AS3.json') }}"
+        dest: "{{ GIT_REPO[0].git_repo_path }}/files/{{ candidate_version }}-AS3.json"
 
     ## Part 2. POST AS3 changes to F5 VEs
 - name: Part 2. POST AS3 changes to F5 VEs
@@ -162,7 +157,7 @@
         method: POST
         timeout: 180
         body_format: json
-        body: "{{ lookup('file', GIT_REPO[0].git_repo_path+'/files/example-AS3.json') }}"
+        body: "{{ lookup('file', GIT_REPO[0].git_repo_path+'/files/+candidate_version+'-AS3.json') }}"
         return_content: yes
         status_code: [ 200, 202]
       register: as3id
@@ -210,7 +205,7 @@
       run_once: true
 
     - name: pull any remote changes to main branch for other tenants
-      shell: git pull origin main
+      shell: git pull origin main --rebase
       args:
         chdir: "{{ GIT_REPO[0].git_repo_path  }}"
       environment:
