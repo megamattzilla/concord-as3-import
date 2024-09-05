@@ -5,6 +5,7 @@
 
 
 ## TODO: add changed when to AS3 POST task
+## Check AS3 burst handling is enabled 
 
 ---
 - name: Part 1. Proccess AS3 from JSON Items
