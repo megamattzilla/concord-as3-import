@@ -1,17 +1,22 @@
+## Overview:
+## Part 1: Save incoming JSON items to github repository as candidate version
+## Part 2: Post AS3 JSON to F5 VEs
+## Part 3: on AS3 sucess, promote candidate to current version
+
+
+## TODO: add changed when to AS3 POST task
+## TODO: replace delete candidate task with conditional
 ---
 - name: Part 1. Proccess AS3 from JSON Items
   hosts: localhost
   connection: local
   gather_facts: false
-  any_errors_fatal: true
-## Overview:
-## Part 1: Save incoming JSON items to github repository as candidate version
-## Part 2: Post AS3 JSON to F5 VEs
-## Part 3: on AS3 sucess, promote candidate to current version
+  #any_errors_fatal: true
   tasks:
 
   ##Part 1: Save incoming AS3 declaration to github repository
   tasks:
+
     - name: Gather date and time facts only
       setup:
         gather_subset:
@@ -30,6 +35,8 @@
         name: ansible-git
         tasks_from: pull      
       loop: "{{ GIT_REPO }}"
+      loop_control:        
+        label: "{{ item.name }}"
 
     - name: Create files directory (inside repo) if it does not exist
       ansible.builtin.file:
@@ -64,6 +71,21 @@
         label: "{{ item.tenant }}"
       run_once: true
 
+    ## Declare candidate version of todays date and time
+    - set_fact:
+        candidate_version: "{{ ansible_date_time.iso8601 | replace(':','-') }}"
+
+    - name: git push candidate configuration
+      vars:
+        git_remove_local: false
+      include_role:
+        name: ansible-git
+        tasks_from: push
+      loop: "{{ GIT_REPO }}"
+      loop_control:        
+        label: "{{ item.name }}"
+
+
     ## Find n-number tenant files
     - name: Find Tenant .JSON files
       find:
@@ -78,10 +100,18 @@
         tenants_list: []
       run_once: true
     
-    - name: Add contents of each JSON file to the list
+    - name: Detected tenants with changes
+      debug:
+        msg: "Detected Change For tenants: {{ item }}"
+      loop: "{{ modified_tenants }}"    
+    
+    - name: Add contents of each modified JSON file to the list
       set_fact:
-        tenants_list: "{{ tenants_list + [lookup('file', item.path) | from_json] }}"
-      loop: "{{ findOutput.files }}"
+        tenants_list: "{{ tenants_list + [lookup('file', GIT_REPO[0].git_repo_path+'/'+item) | from_json] }}"
+      loop: "{{ modified_tenants }}"
+      loop_control:        
+        label: "{{ item }}"
+      when: "'CHANGELOG' not in item"
    
     - name: Create the final combined dictionary
       set_fact:
@@ -92,23 +122,10 @@
         src: "{{ playbook_dir }}/templates/as3.j2"
         dest: "{{ GIT_REPO[0].git_repo_path }}/files/example-AS3.json"
 
-    ## Declare candidate version of todays date and time
-    ## TODO: add dynamic candidate version?
-    - set_fact:
-        candidate_version: "{{ ansible_date_time.iso8601 | replace(':','-') }}"
-
-    - name: git push candidate configuration
-      vars:
-        git_remove_local: false
-      include_role:
-        name: ansible-git
-        tasks_from: push
-      loop: "{{ GIT_REPO }}"
-    
     ## Part 2: Post original JSON to F5 VEs
-    - name: Print AS3 Declaration
-      debug: 
-        msg: "{{ lookup('file', GIT_REPO[0].git_repo_path+'/files/example-AS3.json') }}"
+    # - name: Print AS3 Declaration
+    #   debug: 
+    #     msg: "{{ lookup('file', GIT_REPO[0].git_repo_path+'/files/example-AS3.json') }}"
 
     ## Part 2. POST AS3 changes to F5 VEs
 - name: Part 2. POST AS3 changes to F5 VEs
@@ -123,6 +140,17 @@
       server_port: 443
   gather_facts: false
   tasks:   
+        
+    - name: Check if SKIP_ALL_PLAYS_FILE exists
+      ansible.builtin.stat:
+        path:  "{{ SKIP_ALL_PLAYS_FILE }}"
+      delegate_to: localhost
+      register: path_to_file_stat
+
+    - name: Exit if no AS3 changes 
+      meta: end_play
+      when: path_to_file_stat.stat.exists
+      run_once: true
 
     - name: POST AS3 declaration to F5 VE
       uri:
@@ -161,11 +189,29 @@
   hosts: localhost
   gather_facts: false
   tasks: 
+
+    - name: Check if SKIP_ALL_PLAYS_FILE exists
+      ansible.builtin.stat:
+        path:  "{{ SKIP_ALL_PLAYS_FILE }}"
+      delegate_to: localhost
+      register: path_to_file_stat
+
+    - name: Remove SKIP_ALL_PLAYS_FILE
+      ansible.builtin.file:
+        path: "{{ SKIP_ALL_PLAYS_FILE }}"
+        state: absent
+      when: path_to_file_stat.stat.exists
+      delegate_to: localhost
+      changed_when: 1 == 2
+
+    - name: Exit if no AS3 changes 
+      meta: end_play
+      when: path_to_file_stat.stat.exists
+      run_once: true
+
     - name: promote candidate configuration to current version
       shell: git push origin main
       args:
         chdir: "{{ GIT_REPO[0].git_repo_path  }}"
       environment:
         GIT_SSH: "{{ playbook_dir }}/.ssh/ssh"
-      
-      #when: git_commit is succeeded

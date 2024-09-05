@@ -1,5 +1,6 @@
 #base local directory for ansible to clone rep files into
 GIT_REPO_BASE_PATH: "{{ playbook_dir }}/files/git"
+SKIP_ALL_PLAYS_FILE: "{{ playbook_dir }}/skip_all_plays.txt"
 
 ##install_ltm_config.yml vars##
 GIT_REPO:    

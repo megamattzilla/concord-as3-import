@@ -5,16 +5,39 @@
   shell: git add -A
   args:
     chdir: "{{ item.git_repo_path }}"
+  register: git_add_status
 
-- name: git status
-  shell: git status
+# #Track detailed tenant file changes for auditing
+# - name: git status verbose for changelog
+#   shell: git status --verbose
+#   args:
+#     chdir: "{{ item.git_repo_path }}"
+#   register: git_status_verbose  
+
+# - name: Write git verbose output to changelog
+#   copy:
+#     content: "{{ git_status_verbose.stdout_lines }}"
+#     dest: "{{ item.git_repo_path }}/files/{{ candidate_version }}-CHANGELOG.txt"
+
+
+- name: git status brief
+  shell: git status --porcelain | awk '{print $2}'
   args:
     chdir: "{{ item.git_repo_path }}"
-  register: git_add_status
+  register: git_status
+
+- set_fact:
+    modified_tenants: "{{ git_status.stdout_lines  }}"
+
+- name: Create txt file to tell later plays to exit gracefully
+  copy:
+    content: "true"
+    dest: "{{ SKIP_ALL_PLAYS_FILE }}"
+  when: git_status.stdout | length == 0
 
 - name: Exit if no AS3 changes 
   meta: end_play
-  when: "'nothing to commit' in git_add_status.stdout"
+  when: git_status.stdout | length == 0
 
 - name: git username
   shell: git config user.name "{{ item.git_username }}"
