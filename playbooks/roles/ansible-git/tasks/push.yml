@@ -64,11 +64,18 @@
     content: "ssh -i {{ git_temp_file.path }} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $*"
     mode: 0700
 
+- name: check if candidate branch exists
+  shell: git branch
+  args:
+    chdir: "{{ GIT_REPO[0].git_repo_path }}"
+  register: git_branch_status
+
 - name: Delete local candidate configuration branch
   shell: git branch -D candidate
   args:
     chdir: "{{ GIT_REPO[0].git_repo_path }}"
   ignore_errors: true
+  when: "'candidate' in git_branch_status.stdout"
 
 - name: Switch to new candidate branch
   shell: git checkout -b candidate

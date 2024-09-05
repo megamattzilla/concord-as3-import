@@ -5,7 +5,7 @@
 
 
 ## TODO: add changed when to AS3 POST task
-## TODO: replace delete candidate task with conditional
+
 ---
 - name: Part 1. Proccess AS3 from JSON Items
   hosts: localhost
