@@ -13,6 +13,3 @@
   copy:
     content: "{{ item.key }}"
     dest: "{{ git_temp_file.path }}"
-
-- name: log key
-  ansible.builtin.shell: cat "{{ git_temp_file.path }}"
