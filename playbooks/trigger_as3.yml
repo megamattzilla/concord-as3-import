@@ -120,7 +120,43 @@
     - name: Build AS3 declaration
       template:
         src: "{{ playbook_dir }}/templates/as3.j2"
-        dest: "{{ GIT_REPO[0].git_repo_path }}/files/{{ candidate_version }}-AS3.json"
+        dest: "{{ GIT_REPO[0].git_repo_path }}/files/example-AS3.json"
+    
+    - name: Add AS3 declaration to candidate branch
+      shell: git add -A
+      args:
+        chdir: "{{ GIT_REPO[0].git_repo_path  }}"
+      environment:
+        GIT_SSH: "{{ playbook_dir }}/.ssh/ssh"
+
+    - name: git commit
+      shell: git commit -a -m "adding rendered AS3 file for version {{ candidate_version }}"
+      args:
+        chdir: "{{ GIT_REPO[0].git_repo_path  }}"
+      register: git_commit_as3
+      ignore_errors: true
+
+    - name: tag repository with version
+      shell: git tag -f {{ candidate_version }}
+      args:
+        chdir: "{{ GIT_REPO[0].git_repo_path  }}"
+      ignore_errors: true
+      when: git_commit_as3 is succeeded
+
+    - name: git push
+      shell: git push origin candidate --force --tag {{ candidate_version }}
+      args:
+        chdir: "{{ GIT_REPO[0].git_repo_path  }}"
+      environment:
+        GIT_SSH: "{{ playbook_dir }}/.ssh/ssh"
+      when: git_commit_as3 is succeeded
+
+    - name: promote candidate configuration to current version
+      shell: git push origin candidate 
+      args:
+        chdir: "{{ GIT_REPO[0].git_repo_path  }}"
+      environment:
+        GIT_SSH: "{{ playbook_dir }}/.ssh/ssh"
 
     ## Part 2. POST AS3 changes to F5 VEs
 - name: Part 2. POST AS3 changes to F5 VEs
@@ -157,7 +193,7 @@
         method: POST
         timeout: 180
         body_format: json
-        body: "{{ lookup('file', GIT_REPO[0].git_repo_path+'/files/+candidate_version+'-AS3.json') }}"
+        body: "{{ lookup('file', GIT_REPO[0].git_repo_path+'/files/example-AS3.json') }}"
         return_content: yes
         status_code: [ 200, 202]
       register: as3id
