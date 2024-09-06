@@ -181,7 +181,7 @@
 
     - name: Exit if no AS3 changes 
       meta: end_play
-      when: path_to_file_stat.stat.exists
+      #when: path_to_file_stat.stat.exists
       run_once: true
 
     - name: POST AS3 declaration to F5 VE
