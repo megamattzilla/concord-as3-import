@@ -4,63 +4,8 @@
     "persist": true,
     "declaration": {
         "class": "ADC",
-        "schemaVersion": "3.2.1",
+        "schemaVersion": "3.2.0",
         "updateMode": "selective",
-        
-        "example2": {
-        "class": "Tenant",
-        "A1": {
-            "class": "Application",
- 
-            "example2-ecv": {
-                "class": "Monitor",
-                "interval": 5,
-                "monitorType": "tcp",
-                "timeout": 4
-            },
-            "example2-pool": {
-                "class": "Pool",
-                "members": [
-                    {
-                        "servicePort": 80,
-                        "serverAddresses": [
-                    "10.0.2.100",
-                    "10.0.2.101"
-                        ],
-                        "shareNodes": true
-                    }
-                ],
-                "monitors": [
-                    {
-                        "use": "example2-ecv"
-                    }
-                ]
-            },
-            "example2": {
-                "class": "Service_TCP",
-                "pool": "example2-pool",
-                "profileTCP": {
-                    "bigip": "/Common/f5-tcp-progressive"
-                },
-                "profileUDP": {
-                    "bigip": ""
-                },
-                "remark": "LAYER4 listener for tcp 8443 tcp 8001",
-                "snat": {
-                    "use": "snatpool-10.0.2.10"
-                },
-                "virtualAddresses": [
-                    "10.0.2.10"
-                ],
-                "virtualPort": 80
-            },
-            "snatpool-10.0.2.10": {
-                "class": "SNAT_Pool",
-                "snatAddresses": [
-                    "10.0.2.10"
-                ]
-            }
-    }},
         
         "example1": {
         "class": "Tenant",
@@ -162,6 +107,61 @@
                 "class": "SNAT_Pool",
                 "snatAddresses": [
                     "10.0.3.10"
+                ]
+            }
+    }},
+        
+        "example2": {
+        "class": "Tenant",
+        "A1": {
+            "class": "Application",
+ 
+            "example2-ecv": {
+                "class": "Monitor",
+                "interval": 5,
+                "monitorType": "tcp",
+                "timeout": 4
+            },
+            "example2-pool": {
+                "class": "Pool",
+                "members": [
+                    {
+                        "servicePort": 80,
+                        "serverAddresses": [
+                    "10.0.2.100",
+                    "10.0.2.101"
+                        ],
+                        "shareNodes": true
+                    }
+                ],
+                "monitors": [
+                    {
+                        "use": "example2-ecv"
+                    }
+                ]
+            },
+            "example2": {
+                "class": "Service_TCP",
+                "pool": "example2-pool",
+                "profileTCP": {
+                    "bigip": "/Common/f5-tcp-progressive"
+                },
+                "profileUDP": {
+                    "bigip": ""
+                },
+                "remark": "LAYER4 listener for tcp 8443 tcp 8001",
+                "snat": {
+                    "use": "snatpool-10.0.2.10"
+                },
+                "virtualAddresses": [
+                    "10.0.2.10"
+                ],
+                "virtualPort": 80
+            },
+            "snatpool-10.0.2.10": {
+                "class": "SNAT_Pool",
+                "snatAddresses": [
+                    "10.0.2.10"
                 ]
             }
     }}
