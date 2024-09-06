@@ -249,7 +249,7 @@
         GIT_SSH: "{{ playbook_dir }}/.ssh/ssh"
 
     - name: pull any remote changes to main branch for other tenants
-      shell: git pull origin main 
+      shell: git pull origin main --ff-only
       args:
         chdir: "{{ GIT_REPO[0].git_repo_path  }}"
       environment:
