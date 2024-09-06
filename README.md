@@ -11,7 +11,7 @@
 | 4. Identify what tenants had configuration changed | X | 
 | 5. Run a jinja2 template to generate the AS3 schema for the tenants that changed | X | 
 | 6. Push the AS3 JSON schema to n-number F5 VE | X |
-| 7. Test multiple POST request in parallel | |  
+| 7. Test multiple POST request in parallel | In-Progress |  
 
 
 ### Example calling Concord Proccess with JSON items (file upload)
