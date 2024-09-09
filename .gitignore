@@ -3,3 +3,4 @@ concord-as3-import
 *.backup
 *scratch*
 playbooks/*.ssh/*
+playbooks/localFiles/*

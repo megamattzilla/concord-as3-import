@@ -7,37 +7,17 @@
     chdir: "{{ item.git_repo_path }}"
   register: git_add_status
 
-# #Track detailed tenant file changes for auditing
-# - name: git status verbose for changelog
-#   shell: git status --verbose
-#   args:
-#     chdir: "{{ item.git_repo_path }}"
-#   register: git_status_verbose  
-
-# - name: Write git verbose output to changelog
-#   copy:
-#     content: "{{ git_status_verbose.stdout_lines }}"
-#     dest: "{{ item.git_repo_path }}/files/{{ candidate_version }}-CHANGELOG.txt"
-
-
 - name: git status brief
-  shell: git status --porcelain | awk '{print $2}'
+  shell: git status --porcelain | grep tenant | awk -F '/' '{print $3}' | sed 's/.json//'| tr '\n' '+' 
   args:
     chdir: "{{ item.git_repo_path }}"
   register: git_status
 
 - set_fact:
-    modified_tenants: "{{ git_status.stdout_lines  }}"
+    modified_tenants: "{{ git_status.stdout  }}"
 
-- name: Create txt file to tell later plays to exit gracefully
-  copy:
-    content: "true"
-    dest: "{{ SKIP_ALL_PLAYS_FILE }}"
-  when: git_status.stdout | length == 0
-
-- name: Exit if no AS3 changes 
-  meta: end_play
-  when: git_status.stdout | length == 0
+- set_fact:
+    candidate_version: "{{modified_tenants}}/{{ ansible_date_time.iso8601 | replace(':','-') }}"
 
 - name: git username
   shell: git config user.name "{{ item.git_username }}"
@@ -64,35 +44,14 @@
     content: "ssh -i {{ git_temp_file.path }} -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $*"
     mode: 0700
 
-- name: check if candidate branch exists
-  shell: git branch
-  args:
-    chdir: "{{ GIT_REPO[0].git_repo_path }}"
-  register: git_branch_status
-
-- name: Delete local candidate configuration branch
-  shell: git branch -D candidate
-  args:
-    chdir: "{{ GIT_REPO[0].git_repo_path }}"
-  ignore_errors: true
-  when: "'candidate' in git_branch_status.stdout"
-
 - name: Switch to new candidate branch
-  shell: git checkout -b candidate
+  shell: git checkout -b feature/{{ candidate_version }}
   args:
     chdir: "{{ GIT_REPO[0].git_repo_path }}"
   register: git_add_status
 
-- name: tag repository with version
-  #Use static value versionTag-${REPO NAME} to map git version number from concord form input to correct repo variable
-  shell: git tag -f {{ candidate_version }}
-  args:
-    chdir: "{{ item.git_repo_path }}"
-  ignore_errors: true
-  when: git_commit is succeeded
-
 - name: git push
-  shell: git push origin candidate --force --tag {{ candidate_version }}
+  shell: git push origin feature/{{ candidate_version }}
   args:
     chdir: "{{ item.git_repo_path }}"
   environment:
@@ -106,4 +65,4 @@
   register: git_add_status
   when: git_commit is succeeded
 
-#- include_tasks: cleanup_keys.yml
+- include_tasks: cleanup_keys.yml
