@@ -1,0 +1,23 @@
+{
+    "environment": "azure-wus2-f5demo-dev-A",
+    "tenant": "example3",
+    "versionTag": "8.0.1",
+    "virtuals": [
+        {
+            "monitorType": "tcp",
+            "pool_members": [
+                "10.0.2.100",
+                "10.0.2.101"
+            ],
+            "profileTCP": "f5-tcp-progressive",
+            "servicePort": 80,
+            "snat": [
+                "10.0.2.10"
+            ],
+            "type": "Service_TCP",
+            "virtual": "example2",
+            "virtualAddresses": "10.0.2.10",
+            "virtualPort": 80
+        }
+    ]
+}
