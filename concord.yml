@@ -85,3 +85,18 @@ flows:
 #           f5adminpassword: "${crypto.exportAsString('Default', 'bigipAdminPassword', null)}"
 #           # #Pass SSH key path to ansible variable
 #           # SSH_KEY_PATH: "${myKeys.private}" 
+
+  merge_branches:
+  - task: github
+    in:
+      action: getBranchList
+      url: "git@github.com:megamattzilla/concord-as3-import.git"
+      privateKey:
+        org: "Default"
+        secretName: "github-write"
+        password: "REDACTED-version1"
+    out: response
+
+  - if: ${response.ok}
+    then:
+      - log: "Got ${response.branchList.size()} branches: ${response.branchList}"
